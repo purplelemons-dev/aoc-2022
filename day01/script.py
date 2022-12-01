@@ -12,6 +12,11 @@ for i in data:
         try:elves[elf]+=int(i)
         except:elves[elf]=int(i)
 
-print(max(elves.values()))
+print("Part 1: "+str(max(elves.values())))
 
 ### Part 2 ###
+
+#swapped={j:i for i,j in elves.items()}
+calories=list(elves.values())
+calories.sort()
+print(f"Part 2: {sum(calories[-3:])}")
