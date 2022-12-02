@@ -39,3 +39,15 @@ for i in data:
     score+=getScore(player2, player1)
 
 print(f"### Part 1 ###\n{score= }")
+
+translate = {
+    "A": "rock",
+    "B": "paper",
+    "C": "scissors"
+}
+
+winLose = {
+    "X": "lose",
+    "Y": "tie",
+    "Z": "win"
+}
