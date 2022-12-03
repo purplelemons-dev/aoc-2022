@@ -40,6 +40,10 @@ for i in data:
 
 print(f"### Part 1 ###\n{score= }")
 
+### Part 2 ###
+
+score=0
+
 translate = {
     "A": "rock",
     "B": "paper",
@@ -51,3 +55,29 @@ winLose = {
     "Y": "tie",
     "Z": "win"
 }
+
+def getScore(elfChoice, outcome):
+    gameScore = 0
+    if outcome=="win":
+        gameScore+=roundScore["win"]
+        if elfChoice=="rock": gameScore+=shapeScore["paper"]
+        elif elfChoice=="paper": gameScore+=shapeScore["scissors"]
+        elif elfChoice=="scissors": gameScore+=shapeScore["rock"]
+    elif outcome=="tie":
+        gameScore+=roundScore["tie"]
+        gameScore+=shapeScore[elfChoice]
+    else:
+        gameScore+=roundScore["lost"]
+        if elfChoice=="rock": gameScore+=shapeScore["scissors"]
+        elif elfChoice=="paper": gameScore+=shapeScore["rock"]
+        elif elfChoice=="scissors": gameScore+=shapeScore["paper"]
+    return gameScore
+
+for i in data:
+    elfChoice, outcome = i.split(" ")
+    elfChoice = translate[elfChoice]
+    outcome = winLose[outcome]
+
+    score+=getScore(elfChoice, outcome)
+
+print(f"### Part 2 ###\n{score= }") # >13386
