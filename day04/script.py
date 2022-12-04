@@ -14,3 +14,17 @@ for line in data:
     if set(range(elf1x,elf1y+1)).issubset(range(elf2x,elf2y+1)) or set(range(elf2x,elf2y+1)).issubset(range(elf1x,elf1y+1)): overlaps+=1
 
 print(f"### Part 1 ###\n{overlaps= }")
+
+### Part 2 ###
+
+overlaps=0
+
+for line in data:
+    elf1, elf2 = line.split(",")
+    elf1x, elf1y = parse(elf1)
+    elf2x, elf2y = parse(elf2)
+    # Given 2 ranges: [elf1x,elf1y] and [elf2x,elf2y]
+    # find if there is an overlap and add 1 to overlaps.
+    if elf1x <= elf2x <= elf1y or elf2x <= elf1x <= elf2y: overlaps+=1
+
+print(f"### Part 2 ###\n{overlaps= }") # not 1505
