@@ -22,3 +22,19 @@ for i in data:
     prioritySum += priority(findCommonChar(sack1, sack2))
 
 print(f"### Part 1 ###\n{prioritySum= }") # >2867
+
+### Part 2 ###
+
+badgeSum=0
+
+def findCommonChar(a:str, b:str, c:str):
+    for i in a:
+        if i in b and i in c: return i
+
+for idx,sack in enumerate(data[::3]):
+    idx=idx*3
+    sack1, sack2, sack3 = data[idx:idx+3]
+
+    badgeSum+=priority(findCommonChar(sack1,sack2,sack3))
+
+print(f"### Part 2 ###\n{badgeSum= }")
