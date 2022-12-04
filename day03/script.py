@@ -15,13 +15,12 @@ def findCommonChar(a:str, b:str):
         if i in b: return i
 
 for i in data:
-    # split the string into two equal parts
     half = len(i) // 2
     sack1, sack2 = i[:half], i[half:]
 
     prioritySum += priority(findCommonChar(sack1, sack2))
 
-print(f"### Part 1 ###\n{prioritySum= }") # >2867
+print(f"### Part 1 ###\n{prioritySum= }")
 
 ### Part 2 ###
 
