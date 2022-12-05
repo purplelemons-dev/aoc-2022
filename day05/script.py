@@ -20,7 +20,16 @@ for i in instructions:
     move = int(i.split(" ")[1])
     from_ = int(i.split(" ")[3])-1
     to = int(i.split(" ")[5])-1
-    for j in range(move):
-        cargo[to].append(cargo[from_].pop())
+    cargo[to]+=[cargo[from_].pop() for i in range(move)]
 
 print(f"### Part 1 ###\nMessage: {''.join(i[-1] for i in cargo.values())}")
+
+### Part 2 ###
+cargo = parse_initial_cargo(initial)
+for i in instructions:
+    move = int(i.split(" ")[1])
+    from_ = int(i.split(" ")[3])-1
+    to = int(i.split(" ")[5])-1
+    cargo[to]+=[cargo[from_].pop() for i in range(move)][::-1]
+
+print(f"### Part 2 ###\nMessage: {''.join(i[-1] for i in cargo.values())}")
