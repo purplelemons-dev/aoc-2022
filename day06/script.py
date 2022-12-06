@@ -9,3 +9,9 @@ def lmaooo():
         if len(set(striiing[idx:idx+4])) == 4: return idx+4
 
 print(f"### Part 1 ###\n{lmaooo()= }")
+
+def omegalul():
+    for idx,_ in enumerate(striiing):
+        if len(set(striiing[idx:idx+14])) == 14: return idx+14
+
+print(f"### Part 2 ###\n{omegalul()= }")
