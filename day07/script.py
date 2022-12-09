@@ -61,3 +61,19 @@ def pogchamp(directory:Directory):
             pogchamp(i)
 pogchamp(root)
 print(f"### Part 1 ###\n{sum(abcd)= }")
+
+### Part 2 ###
+
+bigmax = 70000000
+update = 30000000
+total = root.size
+efgh = []
+def woof(directory:Directory):
+    if directory.size >= update-(bigmax-total):
+        efgh.append(directory.size)
+    for i in directory.children:
+        if isinstance(i, Directory):
+            woof(i)
+
+woof(root)
+print(f"### Part 2 ###\n{min(efgh)= }")
