@@ -6,8 +6,8 @@ with open("input",'r') as f: data = [x.strip() for x in f.readlines()]
 class RopeTrail:
 
     def __init__(self):
-        self.head_pos:complex = 0+0j
-        self.tail_pos:complex = 0+0j
+        self.head_pos:complex = 0j
+        self.tail_pos:complex = 0j
         self.tail_visited:set[complex] = set()
 
     @property
