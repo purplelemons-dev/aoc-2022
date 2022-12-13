@@ -50,3 +50,54 @@ for line in data:
         trail.move(direction)
 
 print(f"### Part 1 ###\n{trail.unique_visits= }")
+
+### Part 2 ###
+class NewRopeTrail:
+    def __init__(self):
+        self.trails = [0j]*10
+        self.tail_visited = set()
+    
+    @staticmethod
+    def near(pos1:complex, pos2:complex):
+        return (
+            abs(pos1.real-pos2.real)<=1
+            and abs(pos1.imag-pos2.imag)<=1
+        )
+
+    @property
+    def unique_visits(self):
+        return len(self.tail_visited)
+
+    @staticmethod
+    def translate(direction:str):
+        try:
+            return {
+                "U": 0+1j,
+                "D": 0-1j,
+                "L": -1+0j,
+                "R": 1+0j
+            }[direction]
+        except KeyError: raise ValueError("Invalid direction")
+    
+    def move(self, direction:str):
+        offset = self.translate(direction)
+        for idx, trail in enumerate(self.trails[:-1]):
+            print(f"trail was {trail}")
+            self.trails[idx] += offset
+            print(f"trail is {trail}")
+            if self.near(trail, self.trails[idx+1]):
+                break
+            else:
+                pos1 = self.trails[idx+1]
+                self.trails[idx+1] = trail - offset
+                offset = self.trails[idx+1] - pos1
+                print(f"{offset= }")
+        self.tail_visited.add(self.trails[-1])
+
+trail = NewRopeTrail()
+for line in data:
+    direction, distance = line.split(" ")
+    for _ in range(int(distance)):
+        trail.move(direction)
+
+print(f"### Part 2 ###\n{trail.unique_visits= }")
