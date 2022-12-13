@@ -81,17 +81,15 @@ class NewRopeTrail:
     
     def move(self, direction:str):
         offset = self.translate(direction)
-        for idx, trail in enumerate(self.trails[:-1]):
-            print(f"trail was {trail}")
-            self.trails[idx] += offset
-            print(f"trail is {trail}")
-            if self.near(trail, self.trails[idx+1]):
+        self.trails[0] += offset
+        for idx, trail in enumerate(self.trails[1:]):
+            idx+=1
+            if self.near(trail, self.trails[idx-1]):
                 break
             else:
-                pos1 = self.trails[idx+1]
-                self.trails[idx+1] = trail - offset
-                offset = self.trails[idx+1] - pos1
-                print(f"{offset= }")
+                pos1 = trail
+                self.trails[idx] = self.trails[idx-1] + offset
+                offset = trail - pos1
         self.tail_visited.add(self.trails[-1])
 
 trail = NewRopeTrail()
