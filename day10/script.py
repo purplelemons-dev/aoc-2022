@@ -25,6 +25,5 @@ class CPU:
                 if j==timer-1 and inst.split(" ")[0] == "addx":
                     self.X += int(inst.split(" ")[-1])
 
-
 cpu = CPU(data)
 print(f"### Part 1 ###\nRegister sum: {cpu.registerSum}") # >7020
