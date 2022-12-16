@@ -88,7 +88,8 @@ class NewRopeTrail:
                 break
             else:
                 pos1 = trail
-                self.trails[idx] = self.trails[idx-1] + offset
+                if not 
+                self.trails[idx] = self.trails[idx-1] - offset
                 offset = trail - pos1
         self.tail_visited.add(self.trails[-1])
 
