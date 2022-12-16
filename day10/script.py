@@ -8,7 +8,6 @@ class CPU:
         self.clock = 0
         self.instructions = instructions
         self.registerSum = 0
-        #self.spritePos = 0
         self.litPixels = ""
         self.run()
 
