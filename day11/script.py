@@ -36,21 +36,21 @@ class Monkey:
     def createModuloCheck(self):
         return lambda x: x%self.modulo==0
 
-monkies:list[Monkey] = []
+monkeys:list[Monkey] = []
 
 for idx,line in enumerate(data[::7]):
     idx*=7
-    monkies.append(Monkey(data[idx:idx+7]))
+    monkeys.append(Monkey(data[idx:idx+7]))
 
 for round in range(20):
-    for m in monkies:
+    for m in monkeys:
         for item in m.current_items.copy():
             item = m.evalOperator(item)//3
             m.current_items.pop(0)
             m.times_inspected += 1
-            monkies[m.onTrue if m.moduloCheck(item) else m.onFalse].current_items.append(item)
+            monkeys[m.onTrue if m.moduloCheck(item) else m.onFalse].current_items.append(item)
 
-final = [m.times_inspected for m in monkies]
+final = [m.times_inspected for m in monkeys]
 max1 = max(final)
 final.remove(max1)
 max2 = max(final)
@@ -58,57 +58,49 @@ print(f"### Part 1 ###\n{max1*max2}")
 
 ### Part 2 ###
 
-monkies:list[Monkey] = []
+MOD=1
+for m in monkeys: MOD *= m.modulo
 
-data="""Monkey 0:
-  Starting items: 79, 98
-  Operation: new = old * 19
-  Test: divisible by 23
-    If true: throw to monkey 2
-    If false: throw to monkey 3
+class Monkey2:
+    def __init__(self,items:list[int],operation_line:str,modulo:int,onTrue:int,onFalse:int):
+        self.times_inspected = 0
+        self.current_items = items
+        operator = "+" if "+" in operation_line else "*"
+        self.operation_line = operation_line
+        try:
+            op_int = int(operation_line.split(f"{operator} ")[-1])
+            self.operation = lambda x: eval(f"{x}{operator}{op_int}")
+        except ValueError: self.operation = lambda x: eval(f"{x}{operator}{x}")
+        self.modulo = modulo
+        self.onTrue = onTrue
+        self.onFalse = onFalse
 
-Monkey 1:
-  Starting items: 54, 65, 75, 74
-  Operation: new = old + 6
-  Test: divisible by 19
-    If true: throw to monkey 2
-    If false: throw to monkey 0
-
-Monkey 2:
-  Starting items: 79, 60, 97
-  Operation: new = old * old
-  Test: divisible by 13
-    If true: throw to monkey 1
-    If false: throw to monkey 3
-
-Monkey 3:
-  Starting items: 74
-  Operation: new = old + 3
-  Test: divisible by 17
-    If true: throw to monkey 0
-    If false: throw to monkey 1
-""".split("\n")
-
+monkeys:list[Monkey2]=[]
 for idx,line in enumerate(data[::7]):
     idx*=7
-    monkies.append(Monkey(data[idx:idx+7]))
+    items = [int(i) for i in data[idx+1].strip("Starting items: ").split(", ")]
+    operation_line = data[idx+2].strip("Operation: new = old ")
+    modulo = int(data[idx+3].strip("Test: divisible by "))
+    onTrue = int(data[idx+4].strip("If true: throw to monkey "))
+    onFalse = int(data[idx+5].strip("If false: throw to monkey "))
+    
+    monkeys.append(Monkey2(items,operation_line,modulo,onTrue,onFalse))
 
-for round in range(10**5):
-    for m in monkies:
-        #print(f"Round {round} - Monkey {m.id} - {m.current_items}")
-        for item in m.current_items.copy():
-            item = m.evalOperator(item) % m.modulo
-            m.current_items.pop(0)
-            m.times_inspected += 1
-            monkies[m.onTrue if m.moduloCheck(item) else m.onFalse].current_items.append(item)
+for round in range(10**4):
+    for idx,m in enumerate(monkeys):
+        #print(f"Round {round+1} - Monkey {idx+1} - {m.current_items}")
+        m.times_inspected += len(m.current_items)
+        for item in m.current_items:
+            item = m.operation(item) % MOD
+            monkeys[
+                m.onTrue if not item%m.modulo
+                else m.onFalse
+            ].current_items.append(item)
+        m.current_items=[]
 
-final = [m.times_inspected for m in monkies]
+final = [m.times_inspected for m in monkeys]
 max1 = max(final)
 final.remove(max1)
 max2 = max(final)
-
-#* 2713310158
-#  266747029810
-#  271412780082
 
 print(f"### Part 2 ###\n{max1*max2}") # <1477464551264
