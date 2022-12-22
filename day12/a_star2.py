@@ -1,51 +1,38 @@
 
-class coord(complex):
-    @property
-    def x(self):
-        return round(self.real)
-    @property
-    def y(self):
-        return round(self.imag)
-    def __iter__(self):
-        return iter((self.x,self.y))
+from a_star import coord
+import a_star
 
+class node(a_star.node):
 
-class node:
-    def __eq__(self, __o:'node') -> bool: return self.pos==__o.pos
-    def __ne__(self, __o:'node') -> bool: return not self==__o
-    def __lt__(self, __o:'node') -> bool: return self.distance<__o.distance
-    def __hash__(self) -> int: return hash(self.pos)
-    def __init__(self,pos:coord,value:str):
-        self.pos=pos
-        self.value=value
-        self.parent:node=None
-        self.distance=None
-
-    @property
-    def discovered(self):
-        return True if isinstance(self.distance,int) else False
-
-    def neighbors(self,map:dict[coord,'node'],dim:tuple[int,int]):
-        x,y = self.pos
-        dim_x,dim_y = dim
-        for dx,dy in ((1,0),(-1,0),(0,1),(0,-1)):
+    def neighbors(self, map: dict[coord, 'node'], dim: tuple[int, int]):
+        x, y = self.pos
+        dim_x, dim_y = dim
+        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
             if x+dx in range(dim_x) and y+dy in range(dim_y):
-                temp_node = map[coord(x+dx,y+dy)]
-                if temp_node.value!="#":
-                    yield temp_node
+                _node = map[coord(x+dx,y+dy)]
+                if self.numvalue >= _node.numvalue-1:
+                    yield _node
 
     def update(self,map:dict[coord,'node'],dim:tuple[int,int]):
-        """Ensure that you do not update a wall node.
-        This can be done by checking `node.value` before calling this method."""
         temp=set()
         for neighbor in self.neighbors(map,dim):
-            if neighbor.discovered:
+            if neighbor.discovered and not (self.numvalue > neighbor.numvalue+1):
                 temp.add(neighbor)
             else:
                 yield neighbor
         self.parent = min(temp,key=lambda i:i.distance) if temp else None
         self.distance=self.parent.distance+1 if self.parent else 0
 
+    @property
+    def numvalue(self)->int:
+        if self.value==self.value.lower():
+            return ord(self.value)-97
+        elif self.value=="S":
+            return 0
+        elif self.value=="E":
+            return 25
+        else:
+            raise ValueError("Invalid cell value")
 
 class pathfinder:
     def __init__(self,textmap:str):
@@ -62,7 +49,7 @@ class pathfinder:
 
     def run(self):
         while 1:
-            next_nodes=set()
+            next_nodes:set[node]=set()
             for _node in self.current:
                 next_nodes.update(_node.update(self.map,self.dimensions))
             if self.end.discovered:
@@ -79,17 +66,13 @@ class pathfinder:
             pos_x, pos_y = current.pos
             temp[pos_y][pos_x]="."
 
-
-if __name__=="__main__":
-    given_map="""
-#S#######
-#   #  E#
-# # #   #
-# # #   #
-#       #
-#########"""[1:]
-
+if __name__ == "__main__":
+    given_map = """
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""[1:]
     path = pathfinder(given_map)
     print(path.run())
     print(path.solved)
-
