@@ -1,13 +1,4 @@
 
-given_map="""
-#S#######
-#   #  E#
-# # #   #
-# # #   #
-#       #
-#########"""[1:]
-
-
 class coord(complex):
     @property
     def x(self):
@@ -90,6 +81,14 @@ class pathfinder:
 
 
 if __name__=="__main__":
+    given_map="""
+#S#######
+#   #  E#
+# # #   #
+# # #   #
+#       #
+#########"""[1:]
+
     path = pathfinder(given_map)
     print(path.run())
     print(path.solved)
