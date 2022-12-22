@@ -1,45 +1,78 @@
 
-with open("input",'r') as f: data = [x.strip() for x in f.readlines()]
+with open("input",'r') as f: data=f.read() #data = [x.strip() for x in f.readlines()]
 
 ### Part 1 ###
 
-map=list(list(x) for x in data)
-moves:set[complex]=set()
-nodes:list[complex]=[]
-current=end=0j
+from a_star import coord
+import a_star
 
-def translate(x:str):
-    if x.islower(): return ord(x)-97
-    elif x=="S": return 0
-    elif x=="E": return 25
-    else: raise ValueError("Invalid input")
+class node(a_star.node):
 
-for y,line in enumerate(map):
-    for x,point in enumerate(line):
-        if point=="S": current=complex(x,y)
-        elif point=="E": end=complex(x,y)
+    def neighbors(self, map: dict[coord, 'node'], dim: tuple[int, int]):
+        x, y = self.pos
+        dim_x, dim_y = dim
+        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+            if x+dx in range(dim_x) and y+dy in range(dim_y):
+                _node = map[coord(x+dx,y+dy)]
+                if self.numvalue >= _node.numvalue-1:
+                    yield _node
 
-def allowed_moves(pos:complex,moves_taken:set[complex]):
-    x,y=round(pos.real),round(pos.imag)
-    a_moves:set[complex]=set()
-    pos_value = translate(map[y][x])
-    for dx,dy in ((1,0),(-1,0),(0,1),(0,-1)):
-        if x+dx in range(len(map[0])) and y+dy in range(len(map)):
-            if dx+dy*1j in moves_taken: continue
-            new_value = translate(map[y+dy][x+dx])
-            if new_value<=pos_value+1:
-                a_moves.add(complex(x+dx,y+dy))
-    return a_moves
+    def update(self,map:dict[coord,'node'],dim:tuple[int,int]):
+        temp=set()
+        for neighbor in self.neighbors(map,dim):
+            if neighbor.discovered and not (self.numvalue > neighbor.numvalue+1):
+                temp.add(neighbor)
+            else:
+                yield neighbor
+        self.parent = min(temp,key=lambda i:i.distance) if temp else None
+        self.distance=self.parent.distance+1 if self.parent else 0
 
-while True:
-    moves.add(nodes[-1])
-    options = allowed_moves(nodes[-1],moves)
-    if len(options)>1:
-        nodes.append(current)
-        ...
-    elif len(options)==1:
-        nodes[-1]=current
-    elif len(options)==0:
-        ...
+    @property
+    def numvalue(self)->int:
+        if self.value==self.value.lower():
+            return ord(self.value)-97
+        elif self.value=="S":
+            return 0
+        elif self.value=="E":
+            return 25
+        else:
+            raise ValueError("Invalid cell value")
 
-print(solve(set(),current))
+class pathfinder:
+    def __init__(self,textmap:str):
+        self.textmap=textmap
+        self.map:dict[coord,node]={
+            coord(x,y):node(coord(x,y),cell)
+                for y,line in enumerate(textmap.splitlines())
+                    for x,cell in enumerate(line)
+        }
+        self.dimensions=(len(textmap.splitlines()),len(textmap.splitlines()[0]))[::-1]
+        for _node in self.map.values():
+            if _node.value=="S": self.current={_node}
+            elif _node.value=="E": self.end=_node
+
+    def run(self):
+        while 1:
+            next_nodes:set[node]=set()
+            for _node in self.current:
+                next_nodes.update(_node.update(self.map,self.dimensions))
+            if self.end.discovered:
+                return self.end.distance
+            self.current=next_nodes
+        
+    @property
+    def solved(self):
+        current=self.end
+        temp=[list(i) for i in self.textmap.splitlines()]
+        while 1:
+            if current.value=="S": return "\n".join("".join(i) for i in temp)
+            current=current.parent
+            print(current)
+            pos_x, pos_y = current.pos
+            temp[pos_y][pos_x]="."
+
+given_map = data
+
+path = pathfinder(given_map)
+print(path.run())
+print(path.solved)
