@@ -3,10 +3,28 @@ with open("input",'r') as f: data=f.read() #data = [x.strip() for x in f.readlin
 
 ### Part 1 ###
 
-from a_star import coord
-import a_star
+class coord(complex):
+    @property
+    def x(self):
+        return round(self.real)
+    @property
+    def y(self):
+        return round(self.imag)
+    def __iter__(self):
+        return iter((self.x,self.y))
 
-class node(a_star.node):
+class node:
+
+    def __eq__(self, __o:'node') -> bool: return self.pos==__o.pos
+    def __ne__(self, __o:'node') -> bool: return not self==__o
+    def __lt__(self, __o:'node') -> bool: return self.distance<__o.distance
+    def __hash__(self) -> int: return hash(self.pos)
+    def __repr__(self) -> str: return f"node({self.pos}, {self.value!r}, {self.distance})"
+    def __init__(self,pos:coord,value:str):
+        self.pos=pos
+        self.value=value
+        self.parent:node=None
+        self.distance=None
 
     def neighbors(self, map: dict[coord, 'node'], dim: tuple[int, int]):
         x, y = self.pos
@@ -37,6 +55,10 @@ class node(a_star.node):
             return 25
         else:
             raise ValueError("Invalid cell value")
+    
+    @property
+    def discovered(self):
+        return True if isinstance(self.distance,int) else False
 
 class pathfinder:
     def __init__(self,textmap:str):
