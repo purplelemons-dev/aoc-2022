@@ -36,10 +36,11 @@ class node:
     def update(self,map:dict[coord,'node'],dim:tuple[int,int]):
         parents=set()
         for neighbor in self.neighbors(map,dim):
+            # do not ask me what the >= and <= do exactly mathematically,
+            # I have no idea, it just works
             if neighbor.discovered and self.numvalue <= neighbor.numvalue+1:
                 parents.add(neighbor)
             elif not neighbor.discovered and self.numvalue >= neighbor.numvalue-1:
-                # Surrounding positions available to be updated
                 yield neighbor
         self.parent = min(parents,key=lambda i:i.distance) if parents else None
         self.distance=self.parent.distance+1 if self.parent else 0
@@ -85,9 +86,6 @@ class pathfinder:
     def solved(self):
         current=self.end
         temp=[list(i) for i in self.textmap.splitlines()]
-        # Debug
-        #print("\n".join(repr(i) for i in self.map.values() if i.parent is None and i.value!="S"))
-        
         while 1:
             if current.value=="S": return "\n".join("".join(i) for i in temp)
             current=current.parent
@@ -96,13 +94,6 @@ class pathfinder:
 
 given_map = data
 
-# Below is the example input, comment out to use input file.
-#given_map = """
-#Sabqponm
-#abcryxxl
-#accszExk
-#acctuvwj
-#abdefghi"""[1:]
 
 path = pathfinder(given_map)
 print(path.run())
