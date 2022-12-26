@@ -167,4 +167,3 @@ class pathfinder2:
 path2 = pathfinder2(given_map)
 print("### Part 2 ###")
 print(path2.run())
-
