@@ -96,6 +96,6 @@ given_map = data
 
 
 path = pathfinder(given_map)
+print("### Part 1 ###")
 print(path.run())
-print(path.end.parent)
-print(path.solved)
+#print(path.solved)
