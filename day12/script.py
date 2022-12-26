@@ -27,21 +27,29 @@ class node:
         self.distance=None
 
     def neighbors(self, map: dict[coord, 'node'], dim: tuple[int, int]):
+        """Returns north, south, east, west neighbors of the node,
+        regardless of whether the neighboring node is a valid move."""
         x, y = self.pos
         dim_x, dim_y = dim
         for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
             if x+dx in range(dim_x) and y+dy in range(dim_y):
                 yield map[coord(x+dx,y+dy)]
 
-    def update(self,map:dict[coord,'node'],dim:tuple[int,int]):
+    def update(self,map:dict[coord,'node'],dim:tuple[int,int], debug:bool=False):
+        """Determines the updated node's parent and distance.
+        This function also yields the valid neighbors of the node
+        that have not been discovered yet."""
         parents=set()
         for neighbor in self.neighbors(map,dim):
             # do not ask me what the >= and <= do exactly mathematically,
             # I have no idea, it just works
+            if debug: print(f"{self.value=} {neighbor.value=}")
             if neighbor.discovered and self.numvalue <= neighbor.numvalue+1:
                 parents.add(neighbor)
             elif not neighbor.discovered and self.numvalue >= neighbor.numvalue-1:
                 yield neighbor
+        if debug:
+            print(f"parents: {parents}")
         self.parent = min(parents,key=lambda i:i.distance) if parents else None
         self.distance=self.parent.distance+1 if self.parent else 0
 
@@ -96,6 +104,67 @@ given_map = data
 
 
 path = pathfinder(given_map)
+print("### Part 1 ###")
 print(path.run())
-print(path.end.parent)
-print(path.solved)
+#print(path.solved)
+
+### Part 2 ###
+
+class node2(node):
+    def update(self,map:dict[coord,'node'],dim:tuple[int,int], debug:bool=False):
+        parents=set()
+        for neighbor in self.neighbors(map,dim):
+            # do not ask me what the >= and <= do exactly mathematically,
+            # I have no idea, it just works
+            if debug: print(f"{self.value=} {neighbor.value=}")
+            if not neighbor.discovered and self.numvalue <= neighbor.numvalue+1:
+                yield neighbor
+            elif neighbor.discovered and self.numvalue >= neighbor.numvalue-1:
+                parents.add(neighbor)
+        if debug: print(f"parents: {parents}")
+        self.parent = min(parents,key=lambda i:i.distance) if parents else None
+        self.distance=self.parent.distance+1 if self.parent else 0
+
+class pathfinder2:
+    def __init__(self, textmap: str):
+        self.textmap = textmap
+        self.map: dict[coord, node2] = {
+            coord(x, y): node2(coord(x, y), cell)
+            for y, line in enumerate(textmap.splitlines())
+            for x, cell in enumerate(line)
+        }
+        self.dimensions = (len(textmap.splitlines()), len(textmap.splitlines()[0]))[::-1]
+        for _node in self.map.values():
+            # We start from the end
+            # All node.numvalue==0 are the destinations.
+            if _node.value == "E":
+                _node.distance = 0
+                self.current = {_node}
+                break
+
+    def run(self):
+        while 1:
+            next_nodes: set[node2] = set()
+            for _node in self.current:
+                next_nodes.update(_node.update(self.map, self.dimensions))
+            if any(i.numvalue == 0 for i in self.current):
+                return min(i.distance for i in self.current if i.numvalue == 0)
+            self.current = next_nodes
+    
+    # No you dont get a fancy solved function because i dont feel like it
+    #
+    #@property
+    #def solved(self):
+    #    current = self.end
+    #    temp = [list(i) for i in self.textmap.splitlines()]
+    #    while 1:
+    #        if current.value == "S": return "\n".join("".join(i) for i in temp)
+    #        current = current.parent
+    #        pos_x, pos_y = current.pos
+    #        temp[pos_y][pos_x] = "."
+
+
+path2 = pathfinder2(given_map)
+print("### Part 2 ###")
+print(path2.run())
+
