@@ -1,5 +1,5 @@
 
-with open("input",'r') as f: data=f.read() #data = [x.strip() for x in f.readlines()]
+with open("input",'r') as f: data=f.read()
 
 ### Part 1 ###
 
@@ -19,7 +19,7 @@ class node:
     def __ne__(self, __o:'node') -> bool: return not self==__o
     def __lt__(self, __o:'node') -> bool: return self.distance<__o.distance
     def __hash__(self) -> int: return hash(self.pos)
-    def __repr__(self) -> str: return f"node({self.pos}, {self.value!r}, {self.distance})"
+    def __repr__(self) -> str: return f"node(p={self.pos}, v={self.value!r}, d={self.distance}, pa={self.parent})"
     def __init__(self,pos:coord,value:str):
         self.pos=pos
         self.value=value
@@ -31,18 +31,17 @@ class node:
         dim_x, dim_y = dim
         for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
             if x+dx in range(dim_x) and y+dy in range(dim_y):
-                _node = map[coord(x+dx,y+dy)]
-                if self.numvalue >= _node.numvalue-1:
-                    yield _node
+                yield map[coord(x+dx,y+dy)]
 
     def update(self,map:dict[coord,'node'],dim:tuple[int,int]):
-        temp=set()
+        parents=set()
         for neighbor in self.neighbors(map,dim):
-            if neighbor.discovered and not (self.numvalue > neighbor.numvalue+1):
-                temp.add(neighbor)
-            else:
+            if neighbor.discovered and self.numvalue <= neighbor.numvalue+1:
+                parents.add(neighbor)
+            elif not neighbor.discovered and self.numvalue >= neighbor.numvalue-1:
+                # Surrounding positions available to be updated
                 yield neighbor
-        self.parent = min(temp,key=lambda i:i.distance) if temp else None
+        self.parent = min(parents,key=lambda i:i.distance) if parents else None
         self.distance=self.parent.distance+1 if self.parent else 0
 
     @property
@@ -86,15 +85,26 @@ class pathfinder:
     def solved(self):
         current=self.end
         temp=[list(i) for i in self.textmap.splitlines()]
+        # Debug
+        #print("\n".join(repr(i) for i in self.map.values() if i.parent is None and i.value!="S"))
+        
         while 1:
             if current.value=="S": return "\n".join("".join(i) for i in temp)
             current=current.parent
-            print(current)
             pos_x, pos_y = current.pos
             temp[pos_y][pos_x]="."
 
 given_map = data
 
+# Below is the example input, comment out to use input file.
+#given_map = """
+#Sabqponm
+#abcryxxl
+#accszExk
+#acctuvwj
+#abdefghi"""[1:]
+
 path = pathfinder(given_map)
 print(path.run())
+print(path.end.parent)
 print(path.solved)
