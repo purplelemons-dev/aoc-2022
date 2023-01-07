@@ -30,17 +30,18 @@ def get_next_pos(pos:complex, structure:set[complex])->complex:
 
 def print_structure(structure:set[complex]):
     min_x,max_x,min_y,max_y = min(structure,key=lambda x: x.real).real,max(structure,key=lambda x: x.real).real,min(structure,key=lambda x: x.imag).imag,max(structure,key=lambda x: x.imag).imag
-    print("*"*10)
-    for y in range(int(min_y),int(max_y)+1):
-        for x in range(int(min_x),int(max_x)+1):
-            if complex(x,y) in structure:
-                if complex(x,y) in copied:
-                    print("#",end="")
+    with open("output","w") as f:
+        print("*"*10,file=f)
+        for y in range(int(min_y),int(max_y)+1):
+            for x in range(int(min_x),int(max_x)+1):
+                if complex(x,y) in structure:
+                    if complex(x,y) in copied:
+                        print("#",end="",file=f)
+                    else:
+                        print(".",end="",file=f)
                 else:
-                    print(".",end="")
-            else:
-                print(" ",end="")
-        print()
+                    print(" ",end="",file=f)
+            print("\n",end="",file=f)
 
 sand,current,high_pos=0,complex(500,0),max(structure,key=lambda x: x.imag).imag
 try:
@@ -58,3 +59,24 @@ except KeyboardInterrupt:
     print(sand)
 
 print(f"### Part 1 ###\n{sand= }")
+
+### Part 2 ###
+current,sand2=500+0j,0
+try:
+    while 1:
+        new_pos = get_next_pos(current,part2)
+        if (new_pos,current)==(None,500+0j):
+            #print_structure(part2)
+            sand2+=1
+            break
+        elif new_pos is None or new_pos.imag == high_pos+2:
+            sand2 += 1
+            part2.add(current)
+            current = complex(500,0)
+        else:
+            current = new_pos
+
+except KeyboardInterrupt:
+    print()
+
+print(f"### Part 2 ###\n{sand2= }") # >30366
