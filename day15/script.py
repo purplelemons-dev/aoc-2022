@@ -47,29 +47,58 @@ if not answer < 4560026:
 print(f"### Part 1 ###\n{answer= }")
 
 ### Part 2 ###
+del blocked
+grid:dict[int,set[range]]={}
 def tuning_freq(coord:complex):
-    return lim*int(coord.real) + int(coord.imag)
+    return 4000000*int(coord.real) + int(coord.imag)
 
-def a(coord:complex):
-    return all(map(lambda i: 0<=i<=lim, (coord.real, coord.imag)))
+def fancy(coords,size):
+    out=[]
+    for j in range(size*2+2):
+        j-=size+1
+        for i in range(size*2+2):
+            i-=size+1
+            out += "#" if complex(i,j) in coords else " "
+        out+="\n"
+    return "".join(out)
 
 def get_surrounding(coord:complex,size:int):
-    # Iterate through the y values (coord.imag-size -> coord.imag+size)
-    # Iterate through the x values between the derrived points on the current y value (coord.real-l//2 -> coord.real+l//2)
+    # Returning ranges is a good idea for this: it will optimize the search time for an empty space
+    # Now all that needs to be done is figuring out a good way to add the ranges to the grid and iterate through them later (see TODO line 77)
+    out:dict[int,range]={}
     for y in range(int(coord.imag)-size, int(coord.imag)+size+1):
         d=abs(y-int(coord.imag))
         l=2*abs(size-d)+1
         start_x, end_x = int(coord.real)-l//2, int(coord.real)+l//2
-        for x in range(start_x, end_x+1):
-            yield complex(x,y)
+        out[y] = range(start_x, end_x+1)
+    return out
 
+for sensor in sensors:
+    # TODO: fix the way that the grid is handled
+    out=get_surrounding(sensor,sensors[sensor])
+    for y in out:
+        if y>=0:
+            try:
+                grid[y].update({out[y]})
+            except KeyError:
+                grid[y]={out[y]}
+#print(fancy(grid,lim))
+print("done generating grid")
 def main():
+    #for y in range(0,lim+1):
+    #    for x in range(0,lim+1):
+    #        coord = complex(x,y)
+    #        if coord in grid:# or not a(coord):
+    #            continue
+    #        print(f"### Part 2 ###\n{tuning_freq(coord)= }")
+    #        return
     for y in range(0,lim+1):
         for x in range(0,lim+1):
-            coord = complex(x,y)
-            if coord in blocked or not a(coord): continue
-            print(f"### Part 2 ###\n{tuning_freq(coord)= }")
-            return
+            for r in grid[y]:
+                print(type(r))
+                if x not in r:
+                    print(f"### Part 2 ###\n{tuning_freq(complex(x,y))= }")
+                    return
     else:
-        raise ArithmeticError(f"Answer ({answer}) out of bounds")
+        raise Exception("No answer found")
 main()
