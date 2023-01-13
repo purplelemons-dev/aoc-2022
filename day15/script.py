@@ -49,56 +49,57 @@ print(f"### Part 1 ###\n{answer= }")
 ### Part 2 ###
 del blocked
 grid:dict[int,set[range]]={}
+
 def tuning_freq(coord:complex):
     return 4000000*int(coord.real) + int(coord.imag)
 
-def fancy(coords,size):
-    out=[]
-    for j in range(size*2+2):
-        j-=size+1
-        for i in range(size*2+2):
-            i-=size+1
-            out += "#" if complex(i,j) in coords else " "
-        out+="\n"
-    return "".join(out)
-
-def get_surrounding(coord:complex,size:int):
-    # Returning ranges is a good idea for this: it will optimize the search time for an empty space
-    # Now all that needs to be done is figuring out a good way to add the ranges to the grid and iterate through them later (see TODO line 77)
-    out:dict[int,range]={}
-    for y in range(int(coord.imag)-size, int(coord.imag)+size+1):
-        d=abs(y-int(coord.imag))
+def get_surrounding(center:complex,size:int) -> dict[int,range]:
+    """Returns a dictionary of y-values corresponding to a range of x values that the object occupies"""
+    y_ranges:dict[int,range]={}
+    x_center,y_center=int(center.real), int(center.imag)
+    for y in range(y_center-size, y_center+size+1):
+        d=abs(y-y_center)
         l=2*abs(size-d)+1
-        start_x, end_x = int(coord.real)-l//2, int(coord.real)+l//2
-        out[y] = range(start_x, end_x+1)
-    return out
+        start_x, end_x = x_center-l//2, x_center+l//2
+        y_ranges[y] = range(start_x, end_x+1)
+    return y_ranges
 
 for sensor in sensors:
     # TODO: fix the way that the grid is handled
-    out=get_surrounding(sensor,sensors[sensor])
-    for y in out:
-        if y>=0:
-            try:
-                grid[y].update({out[y]})
-            except KeyError:
-                grid[y]={out[y]}
-#print(fancy(grid,lim))
+    for y,new_range in get_surrounding(sensor,sensors[sensor]).items():
+        working=True
+        if y<0: continue
+        try:
+            print(f"{y= }")
+            # TODO CHANGE INTO A (recursive) FUNC
+            while working and any(xr.start<new_range.start<xr.stop or xr.start<new_range.stop<xr.stop for xr in grid[y]):
+                for xr in grid[y].copy():
+                    print(grid[y])
+                    if xr.start<new_range.start<xr.stop or xr.start<new_range.stop<xr.stop:
+                        print(f"merging {xr} {new_range}")
+                        grid[y].remove(xr)
+                        grid[y].add(range(min(xr.start,new_range.start),max(xr.stop,new_range.stop)))
+                        working=False
+                        break
+
+            #for xr in grid[y].copy():
+            #    if xr.start<=new_range.start<=xr.stop or xr.start<=new_range.stop<=xr.stop:
+            #        grid[y].remove(xr)
+            #        grid[y].add(range(min(xr.start,new_range.start),max(xr.stop,new_range.stop)))
+            #        break
+        except KeyError:
+            grid[y]={new_range}
+
 print("done generating grid")
+#exit()
 def main():
-    #for y in range(0,lim+1):
-    #    for x in range(0,lim+1):
-    #        coord = complex(x,y)
-    #        if coord in grid:# or not a(coord):
-    #            continue
-    #        print(f"### Part 2 ###\n{tuning_freq(coord)= }")
-    #        return
-    for y in range(0,lim+1):
+    for y in grid:
         for x in range(0,lim+1):
-            for r in grid[y]:
-                print(type(r))
-                if x not in r:
-                    print(f"### Part 2 ###\n{tuning_freq(complex(x,y))= }")
-                    return
+            if all(x not in xr for xr in grid[y]):
+                answer = tuning_freq(complex(x,y))
+                #if not answer > 2503905: raise ArithmeticError(f"Answer ({answer}) out of bounds")
+                print(f"### Part 2 ###\n{x,y= }\n{answer= }")
+                return
     else:
         raise Exception("No answer found")
 main()
