@@ -64,6 +64,13 @@ def get_surrounding(center:complex,size:int) -> dict[int,range]:
         y_ranges[y] = range(start_x, end_x+1)
     return y_ranges
 
+def update_grid_y(grid_y:set[range],new_range:range) -> set[range]:
+    check = lambda xr: xr.start<new_range.start<xr.stop or xr.start<new_range.stop<xr.stop
+    to_change = [xr for xr in grid_y if check(xr)]
+    if len(to_change):
+        
+
+
 for sensor in sensors:
     # TODO: fix the way that the grid is handled
     for y,new_range in get_surrounding(sensor,sensors[sensor]).items():
